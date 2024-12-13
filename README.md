@@ -7,68 +7,49 @@ Le projet "Dice" est une application construite avec Spring Boot permettant de s
 
 ## Étapes de réalisation
 
-### 1. Création du projet Spring Boot
-- Utilisez [Spring Initializr](https://start.spring.io/) pour créer le projet.
-- Choisissez la dernière version de Spring Boot disponible (LTS).
-- Optez pour **Maven** ou **Gradle** comme outil de gestion de dépendances.
-- Ajoutez les dépendances nécessaires : **Spring Web**, **Spring Data JPA**, **H2 Database** .
+### 1. Création et Configuration du projet Spring Boot
+- Création d'un projet Spring Boot avec les dépendances suivantes :
+  - **Spring Web** : Pour créer des services REST.
+  - **Spring Data JPA** : Pour la gestion des entités et des repositories.
+  - **H2 Database** : Pour une base de données en mémoire.
+  - **Lombok** (bonus) : Pour simplifier le code.
+  - **Swagger** (bonus) : Pour documenter les endpoints.
+- Configurration du port sur 8081.
+- Configuration du nom de l'application (dice)
 
-### 2. Configuration du projet
-- Configurez l'application pour qu'elle utilise le port **8081**.
-- Donnez un nom (**dice**) au projet dans le fichier de configuration :
-  - Utilisez **`application.properties`** ou **`application.yml`** selon votre préférence.
+### 2. Création de la classe `Dice`
+- Ajout des champs suivants :
+  - **`nbFaces`** : Nombre de faces du dé.
+- Ajout d'une méthode `roll()` pour lancer le dé et stocker le résultat.
+- Ajout de l'annotation component pour permettre l'injection de dépendances.
 
-### 3. Création de la classe `Dice`
-- Implémentez une classe représentant un dé avec les méthodes nécessaires pour effectuer un lancé.
-- Marquez cette classe avec l'annotation `@Component` pour pouvoir l'injecter au besoin.
-
-### 4. Création de l'entité `DiceRollLog`
-- Modélisez une entité JPA `DiceRollLog` comprenant les champs suivants :
-  - **`id`** : Identifiant unique.
+### 3. Création de l'entité `DiceRollLog`
+- Création de la class avec l'anotation `@Entity`, `@Getter`, `@Setter`, `@AllArgsConstructor`, `@Builder`, `@ToString`.
+- Ajout des champs :
+  - **`id`** : Identifiant unique avec l'annotation `@Id` et `@GeneratedValue`.
   - **`diceCount`** : Nombre de dés lancés.
-  - **`results`** : Liste ou chaîne des valeurs obtenues. Il existe de nombreuses façons de stocker des valeurs simples (simple String), certaines sont plus élégantes (@ElementCollection) que d'autres, vous pouvez choisir la solution qui vous conviendra.
-  - **`timestamp`** : Horodatage du lancé.
-- Utilisez des annotations JPA comme `@Entity`, `@Id`, `@GeneratedValue`, etc.
+  - **`results`** : Liste des valeurs obtenues avec l'annotation `@ElementCollection`.
+  - **`timestamp`** : Horodatage du lancé avec l'annotation `@CreationTimestamp`.
 
-### 5. Création du `Repository`
-- Implémentez une interface héritant de `JpaRepository<DiceRollLog, Long>` pour gérer les interactions avec la base de données.
+### 4. Création du `Repository`
+- Création de l'inteface `DiceRollLogRepository` étendant `JpaRepository`.
+- Ajout de l'annotation `@Repository` pour permettre l'injection de dépendances.
 
-### 6. Création du contrôleur REST pour lancer les dés
-- Implémentez un contrôleur REST annoté avec `@RestController`.
+### 5. Création du contrôleur REST pour lancer les dés
+- Création de la class `DiceController` avec l'annotation `@RestController`.
 - Ajoutez les endpoints suivants :
-  - **`GET /rollDice`** : Lancer un seul dé.
-  - **`GET /rollDices/{X}`** : Lancer X dés (X étant un paramètre dynamique).
+  - **`GET /dice/roll`** : Lancer un seul dé.
+  - **`GET /dice/roll/{x}`** : Lancer x dés (x est un paramètre de l'URL requis).
+  - **`GET /dice/log`** : Retourne l'historique des lancés.
 
-### 7. Création du `Service`
-- Créez un service marqué avec `@Service` contenant une méthode :
-  - Prend en paramètre le nombre de dés à lancer.
-  - Retourne les résultats des lancés au contrôleur.
-  - Enregistre l’historique des lancés dans la base via le `Repository`.
+### 6. Création du `Service`
+- Créez de la class `DiceService` avec l'annotation `@Service`.
+- Implémentation des méthodes :
+- **`roll(int nbRoll)`** : Lancer un dé `nbRoll` fois et retourner les résultats. Avec enregistrement en base de données de l'historique.
+- **`getLog()`** : Retourner l'historique des lancés.
 
-### 8. Contrôleur pour afficher les historiques
-- Ajoutez un autre contrôleur REST permettant d'afficher l'historique des lancés :
-  - **`GET /diceLogs`** : Retourne tous les enregistrements de `DiceRollLog` au format JSON.
-
-### 9. Tests et validation
-- Démarrez l'application et testez les endpoints.
-- Vérifiez les résultats dans la base de données et les réponses JSON.
-
-### 10. (Bonus) Ajout de fonctionnalités avancées
-- **Swagger** :
-  - Ajoutez la dépendance Swagger/OpenAPI.
-  - Configurez Swagger pour documenter vos endpoints.
-  - Accédez à la documentation sur **`http://localhost:8081/swagger-ui.html`**.
-- **Lombok** :
-  - Utilisez Lombok pour simplifier les getters, setters et constructeurs de vos entités.
-
----
-
-## Livrables
-- Le code complet du projet, accessible via un dépôt GitHub.
-- Un fichier `README.md` décrivant les étapes réalisées
-
-## Technologies
-- **Framework principal** : Spring Boot
-- **Base de données** : H2 
-- **Documentation API** : Swagger (bonus)
-- **Simplification de code** : Lombok (bonus)
+### 7. (Bonus) Ajout de fonctionnalités avancées
+- **Swagger** : Ajout de la documentation des endpoints avec Swagger via les annotations:
+  - `@Tag` : Pour définir le groupe de contrôleurs.
+  - `@Operation` : Pour définir une opération.
+  - `@Paramameter` : Pour définir un paramètre.
